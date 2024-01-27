@@ -18,7 +18,6 @@ struct ContentView: View {
             // 右侧工作日志
             TextEditor(text:.constant(coreControl.logs))
             .padding()
-            
         }
     }
 }
@@ -31,9 +30,11 @@ struct Left:View{
     var body: some View {
         VStack {
             ConnectControl(coreControl: coreControl)
-            Text("MCU 系统时间:\(coreControl.mcuSystemTime)")
+            HStack{
+                Text("MCU 系统时间:\(coreControl.mcuSystemTime)")
+                Text("MCU 时钟时间:\(coreControl.mcuClockTimeString)")
+            }
             MCUControl(coreControl: coreControl)
-            
         }
         .padding()
         
@@ -45,29 +46,34 @@ struct Left:View{
 struct ConnectControl:View {
     @ObservedObject var coreControl:CoreControl
     @State var selected = 0
-    var devs = [String]()
+    @State var devs:[String]
     init(coreControl: CoreControl, selected: Int = 0, devs: [String] = [String]()) {
         self.coreControl = coreControl
         self.selected = selected
-        self.devs = self.coreControl.getUartDev()
+        self.devs = coreControl.getUartDev()
     }
     var body: some View {
         Image(systemName: "globe")
             .imageScale(.large)
             .foregroundStyle(.tint)
-        Picker("请选择端口", selection: $selected){
-           
-            ForEach(0 ..< devs.count,id:\.self  ){ index in
-                Text(devs[index]).tag(index)
+        HStack{
+            Picker("请选择端口", selection: $selected){
+                
+                ForEach(0 ..< devs.count,id:\.self  ){ index in
+                    Text(devs[index]).tag(index)
+                }
             }
-            
+            Button("刷新") {
+                devs.removeAll()
+                devs.append(contentsOf: self.coreControl.getUartDev())
+            }
         }.disabled(coreControl.isOpenDev)
         HStack{
             Button("连接"){
                 if(coreControl.open(dev: devs[selected])){
                     coreControl.listen()
                 }
-            }.disabled(coreControl.isOpenDev)
+            }.disabled(coreControl.isOpenDev || devs.count == 0)
             Button("断开"){
                 coreControl.close()
             }.disabled(!coreControl.isOpenDev)
@@ -77,26 +83,55 @@ struct ConnectControl:View {
 // MCU 控制模块
 struct MCUControl:View {
     @ObservedObject var coreControl:CoreControl
-    @State var angle:String
-    @State var angleNum:Double
+    var body: some View {
+        VStack{
+            SteeringControl(coreControl: coreControl)
+        }
+    }
+}
+
+// 舵机控制模块
+struct SteeringControl:View {
+    @ObservedObject var coreControl:CoreControl
+    let numberFormatter = NumberFormatter()
+    @State var isContinuous = false
     init(coreControl: CoreControl) {
         self.coreControl = coreControl
-        self.angleNum = Double(coreControl.steeringParameter.angle)
-        self.angle = String(coreControl.steeringParameter.angle)
+        self.numberFormatter.numberStyle = .none
+        self.numberFormatter.maximum = 180
+        self.numberFormatter.minimum = 0
     }
+    
     var body: some View {
         HStack{
-            TextField("输入角度", text: $angle)
-            Slider(value: $angleNum,in: 0...180) { change in
-                    coreControl.steeringAngleSet(angle: UInt8(UInt(angleNum)))
-                    angle = String(UInt(angleNum))
+            Text("舵机控制：")
+            TextField("输入角度", value: $coreControl.steeringAngle, formatter:numberFormatter) { _ in
+                coreControl.steeringAngleSet()
+                coreControl.objectWillChange.send()
             }
-            Button("执行"){
-                coreControl.steeringAngleSet(angle: angle)
-                angleNum = Double(coreControl.steeringParameter.angle)
+            
+            Slider(value: Binding(get:{coreControl.steeringAngle}, set: { newValue in
+                // 拖动变化时刷新界面，如果要求电机同步变化就发指令
+                coreControl.steeringAngle = newValue
+                coreControl.objectWillChange.send()
+                if(isContinuous){
+                    coreControl.steeringAngleSet()
+                }
+                
+            }),in: 0...180) { _ in
+                // 不需要同步变化时，松开按键发指令
+                if !isContinuous{
+                    coreControl.steeringAngleSet()
+                }
+                    
+            }
+            
+            Toggle(isOn: $isContinuous) {
+                Text("连续变化")
             }
         }.disabled(!coreControl.isOpenDev)
     }
+    
 }
 
 #Preview {

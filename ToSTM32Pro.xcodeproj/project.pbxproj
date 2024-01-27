@@ -7,6 +7,9 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		7929B6DB2B65445E0023C0AB /* Core.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7929B6DA2B65445E0023C0AB /* Core.swift */; };
+		7929B6E02B6544AD0023C0AB /* Uart.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 7929B6DE2B6544AD0023C0AB /* Uart.cpp */; };
+		7929B6E12B6544AD0023C0AB /* Serial.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 7929B6DF2B6544AD0023C0AB /* Serial.cpp */; };
 		796F584F2B5D503D00D1A4C9 /* ToSTM32ProApp.swift in Sources */ = {isa = PBXBuildFile; fileRef = 796F584E2B5D503D00D1A4C9 /* ToSTM32ProApp.swift */; };
 		796F58512B5D503D00D1A4C9 /* ContentView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 796F58502B5D503D00D1A4C9 /* ContentView.swift */; };
 		796F58532B5D503F00D1A4C9 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 796F58522B5D503F00D1A4C9 /* Assets.xcassets */; };
@@ -14,9 +17,6 @@
 		796F58612B5D504000D1A4C9 /* ToSTM32ProTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 796F58602B5D504000D1A4C9 /* ToSTM32ProTests.swift */; };
 		796F586B2B5D504000D1A4C9 /* ToSTM32ProUITests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 796F586A2B5D504000D1A4C9 /* ToSTM32ProUITests.swift */; };
 		796F586D2B5D504000D1A4C9 /* ToSTM32ProUITestsLaunchTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 796F586C2B5D504000D1A4C9 /* ToSTM32ProUITestsLaunchTests.swift */; };
-		796F589E2B5E0E7D00D1A4C9 /* Core.swift in Sources */ = {isa = PBXBuildFile; fileRef = 796F589D2B5E0E7D00D1A4C9 /* Core.swift */; };
-		796F58A32B5E0E9400D1A4C9 /* Serial.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 796F589F2B5E0E9400D1A4C9 /* Serial.cpp */; };
-		796F58A42B5E0E9400D1A4C9 /* Uart.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 796F58A02B5E0E9400D1A4C9 /* Uart.cpp */; };
 		796F58B02B63E23A00D1A4C9 /* CoreControl.swift in Sources */ = {isa = PBXBuildFile; fileRef = 796F58AF2B63E23A00D1A4C9 /* CoreControl.swift */; };
 /* End PBXBuildFile section */
 
@@ -38,6 +38,11 @@
 /* End PBXContainerItemProxy section */
 
 /* Begin PBXFileReference section */
+		7929B6DA2B65445E0023C0AB /* Core.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Core.swift; sourceTree = "<group>"; };
+		7929B6DC2B6544AD0023C0AB /* Uart.hpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.h; path = Uart.hpp; sourceTree = "<group>"; };
+		7929B6DD2B6544AD0023C0AB /* Serial.hpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.h; path = Serial.hpp; sourceTree = "<group>"; };
+		7929B6DE2B6544AD0023C0AB /* Uart.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = Uart.cpp; sourceTree = "<group>"; };
+		7929B6DF2B6544AD0023C0AB /* Serial.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = Serial.cpp; sourceTree = "<group>"; };
 		796F584B2B5D503D00D1A4C9 /* ToSTM32Pro.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = ToSTM32Pro.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		796F584E2B5D503D00D1A4C9 /* ToSTM32ProApp.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ToSTM32ProApp.swift; sourceTree = "<group>"; };
 		796F58502B5D503D00D1A4C9 /* ContentView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ContentView.swift; sourceTree = "<group>"; };
@@ -50,11 +55,6 @@
 		796F586A2B5D504000D1A4C9 /* ToSTM32ProUITests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ToSTM32ProUITests.swift; sourceTree = "<group>"; };
 		796F586C2B5D504000D1A4C9 /* ToSTM32ProUITestsLaunchTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ToSTM32ProUITestsLaunchTests.swift; sourceTree = "<group>"; };
 		796F58912B5DF2BA00D1A4C9 /* ToSTM32Pro-Bridging-Header.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = "ToSTM32Pro-Bridging-Header.h"; sourceTree = "<group>"; };
-		796F589D2B5E0E7D00D1A4C9 /* Core.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; name = Core.swift; path = ../../../ToSTM32/ToSTM32/Core/Core.swift; sourceTree = "<group>"; };
-		796F589F2B5E0E9400D1A4C9 /* Serial.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = Serial.cpp; path = ../../../ToSTM32/ToSTM32/CSrc/Serial.cpp; sourceTree = "<group>"; };
-		796F58A02B5E0E9400D1A4C9 /* Uart.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = Uart.cpp; path = ../../../ToSTM32/ToSTM32/CSrc/Uart.cpp; sourceTree = "<group>"; };
-		796F58A12B5E0E9400D1A4C9 /* Serial.hpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.h; name = Serial.hpp; path = ../../../ToSTM32/ToSTM32/CSrc/Serial.hpp; sourceTree = "<group>"; };
-		796F58A22B5E0E9400D1A4C9 /* Uart.hpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.h; name = Uart.hpp; path = ../../../ToSTM32/ToSTM32/CSrc/Uart.hpp; sourceTree = "<group>"; };
 		796F58A52B5E10B900D1A4C9 /* remote.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = remote.h; path = "../../../../STM32 Project/Core_STM32F407ZGT6/System/Inc/remote.h"; sourceTree = "<group>"; };
 		796F58AF2B63E23A00D1A4C9 /* CoreControl.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = CoreControl.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
@@ -155,8 +155,8 @@
 		796F589B2B5E0E5D00D1A4C9 /* Core */ = {
 			isa = PBXGroup;
 			children = (
+				7929B6DA2B65445E0023C0AB /* Core.swift */,
 				796F58AF2B63E23A00D1A4C9 /* CoreControl.swift */,
-				796F589D2B5E0E7D00D1A4C9 /* Core.swift */,
 			);
 			path = Core;
 			sourceTree = "<group>";
@@ -164,11 +164,11 @@
 		796F589C2B5E0E6500D1A4C9 /* CSrc */ = {
 			isa = PBXGroup;
 			children = (
+				7929B6DF2B6544AD0023C0AB /* Serial.cpp */,
+				7929B6DD2B6544AD0023C0AB /* Serial.hpp */,
+				7929B6DE2B6544AD0023C0AB /* Uart.cpp */,
+				7929B6DC2B6544AD0023C0AB /* Uart.hpp */,
 				796F58A52B5E10B900D1A4C9 /* remote.h */,
-				796F589F2B5E0E9400D1A4C9 /* Serial.cpp */,
-				796F58A12B5E0E9400D1A4C9 /* Serial.hpp */,
-				796F58A02B5E0E9400D1A4C9 /* Uart.cpp */,
-				796F58A22B5E0E9400D1A4C9 /* Uart.hpp */,
 			);
 			path = CSrc;
 			sourceTree = "<group>";
@@ -304,12 +304,12 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				796F589E2B5E0E7D00D1A4C9 /* Core.swift in Sources */,
+				7929B6DB2B65445E0023C0AB /* Core.swift in Sources */,
 				796F58512B5D503D00D1A4C9 /* ContentView.swift in Sources */,
 				796F58B02B63E23A00D1A4C9 /* CoreControl.swift in Sources */,
+				7929B6E12B6544AD0023C0AB /* Serial.cpp in Sources */,
 				796F584F2B5D503D00D1A4C9 /* ToSTM32ProApp.swift in Sources */,
-				796F58A32B5E0E9400D1A4C9 /* Serial.cpp in Sources */,
-				796F58A42B5E0E9400D1A4C9 /* Uart.cpp in Sources */,
+				7929B6E02B6544AD0023C0AB /* Uart.cpp in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
