@@ -13,6 +13,7 @@ class Core{
     private var updateLogsCallback:(()->())?
     private var mcuPulseCallback:(()->())?
     private var steeringAngleCallback:(()->())?
+    private var magneticSensorUpDate:(()->())?
     // 串口类
     private var uart = Uart()
     // 返回的字符串
@@ -28,6 +29,8 @@ class Core{
     
     // 舵机数据
     private(set) var steeringParameter = SteeringParameter(angle: 0)
+    // 磁场传感器数据
+    private(set) var magneticSensorParameter = MagneticSensorParameter(angle: 0, x: 0, y: 0, z: 0,isPrecise: false,isInCalibration: false)
     
     
     // 标志在线与否
@@ -139,6 +142,7 @@ class Core{
         case M_REMOTE_COM_ASK_TIME:remoteAskTime(data:data)
         case M_REMOTE_COM_PULSE:remotePulse(data:data)
         case M_REMOTE_COM_ENGINE:remoteEngine(data:data)
+        case M_REMOTE_COM_SENSOR:remoteSensor(data:data)
         default:
             recordLogs("接收到未知命令！")
         }
@@ -157,6 +161,7 @@ class Core{
         case 0x0102:str = "2号按键扫描进程初始化完成"
         case 0x0103:str = "3号时钟进程初始化完成"
         case 0x0104:str = "4号引擎进程初始化完成"
+        case 0x0105:str = "5号传感器进程初始化完成"
         default:
             str = "未知预置消息"
         }
@@ -213,6 +218,7 @@ class Core{
             remoteAskTime()
         }
     }
+    // 远程引擎
     private func remoteEngine(data:[UInt8]){
         switch(data[1]){
         case UInt8(M_REMOTE_COM_ENGINE_STEERING_ANGLE):// 舵机角度
@@ -225,6 +231,31 @@ class Core{
             recordLogs("引擎：未知信息")
         }
     }
+    // 远程传感器
+    private func remoteSensor(data:[UInt8]){
+        switch(data[1]){
+        case UInt8(M_REMOTE_COM_SENSOR_MAGNETIC_UPDATE):
+            let fx:[UInt8] = [data[2],data[3],data[4],data[5]]
+            memcpy(&magneticSensorParameter.x,fx, 4)
+            let fy:[UInt8] = [data[6],data[7],data[8],data[9]]
+            memcpy(&magneticSensorParameter.y, fy, 4)
+            let fz:[UInt8] = [data[10],data[11],data[12],data[13]]
+            memcpy(&magneticSensorParameter.z, fz, 4)
+            let fa:[UInt8] = [data[14],data[15],data[16],data[17]]
+            memcpy(&magneticSensorParameter.angle, fa, 4)
+            // 信息回调
+            if let magneticSensorUpDate = self.magneticSensorUpDate {
+                magneticSensorUpDate()
+            }
+        case UInt8(M_REMOTE_COM_SENSOT_MAGNETIC_CALIBRATION_COMPLETE):
+            magneticSensorParameter.isPrecise = true  // 数据有效
+            magneticSensorParameter.isInCalibration = false // 校准中
+        default:
+            recordLogs("传感器：未知信息")
+        }
+        
+    }
+    
     ///------------------------------------------------------------------------------------------------
     // 将String转为char字符串指针
     private func toChar(str:String)->UnsafeMutablePointer<UInt8>{
@@ -300,6 +331,16 @@ class Core{
         send(com: UInt8(M_REMOTE_COM_ENGINE), data:outData)
     }
     
+    // 磁传感器校准
+    func magneticCalibration(){
+        magneticSensorParameter.isInCalibration = true
+        var outData = [UInt8]()
+        outData.append(UInt8(M_REMOTE_COM_SENSOT_MAGNETIC_CALIBRATION))
+        send(com: UInt8(M_REMOTE_COM_SENSOR), data:outData)
+    }
+    
+    
+    
     
     
     // 更新UI回调
@@ -314,6 +355,10 @@ class Core{
     func onSteeringAngleCallback(block:@escaping()->()){
         self.steeringAngleCallback = block
     }
+    // 磁传感器数据更新回调
+    func onMagneticSensorUpDate(block:@escaping()->()){
+        self.magneticSensorUpDate = block
+    }
     
 }
 
@@ -322,4 +367,13 @@ class Core{
 // 步机电机相关参数
 struct SteeringParameter{
     var angle:UInt8
+}
+// 磁传感器相关参数
+struct MagneticSensorParameter{
+    var angle:Float32;
+    var x:Float32;
+    var y:Float32;
+    var z:Float32;
+    var isPrecise:Bool; // 数据是否有效
+    var isInCalibration:Bool; // 精准中
 }

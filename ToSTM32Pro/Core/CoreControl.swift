@@ -9,8 +9,12 @@ import Foundation
 
 class CoreControl: Core,ObservableObject {
     
+    // 舵机角度
     var steeringAngle = 0.0
+    // mcu时钟时间
     var mcuClockTimeString = "--:--:--"
+    // 磁传感器信息
+    var MagneticSensorInformation = "磁传感器信息"
     
     init(){
         super.init(isUI: true)
@@ -36,6 +40,22 @@ class CoreControl: Core,ObservableObject {
             self.steeringAngle = Double(self.steeringParameter.angle)
             self.updateUI()
         }
+        // 磁传感器数据更新回调
+        onMagneticSensorUpDate {
+            if(self.magneticSensorParameter.isInCalibration == false){
+                if(self.magneticSensorParameter.isPrecise){
+                    self.MagneticSensorInformation = String(format: "x:%0.2f y:%0.2f z:%0.2f 磁偏角: %0.2f",self.magneticSensorParameter.x,self.magneticSensorParameter.y,self.magneticSensorParameter.z,self.magneticSensorParameter.angle)
+                }
+                else{
+                    self.MagneticSensorInformation = "请校准传感器"
+                }
+            }
+            else{
+                self.MagneticSensorInformation = "传感器校准中……"
+            }
+            self.updateUI()
+        }
+        
         runListen()
     }
     // 步机电机控制
@@ -44,7 +64,7 @@ class CoreControl: Core,ObservableObject {
     }
     
     // UI更新方法
-    private func updateUI(){
+    func updateUI(){
         DispatchQueue.main.async{
            self.objectWillChange.send()
         }

@@ -84,9 +84,10 @@ struct ConnectControl:View {
 struct MCUControl:View {
     @ObservedObject var coreControl:CoreControl
     var body: some View {
-        VStack{
+        VStack(alignment: .leading){
             SteeringControl(coreControl: coreControl)
-        }
+            MagneticSensorControl(coreControl: coreControl)
+        }.disabled(!coreControl.isOpenDev)
     }
 }
 
@@ -129,9 +130,22 @@ struct SteeringControl:View {
             Toggle(isOn: $isContinuous) {
                 Text("连续变化")
             }
-        }.disabled(!coreControl.isOpenDev)
+        }
     }
     
+}
+
+struct MagneticSensorControl:View {
+    @ObservedObject var coreControl:CoreControl
+    var body: some View {
+        HStack(){
+            Text("磁传感器:")
+            Text(coreControl.MagneticSensorInformation).frame(width: 250, alignment: .center)
+            Button("校准") {
+                coreControl.magneticCalibration()
+            }.disabled(coreControl.magneticSensorParameter.isInCalibration)
+        }
+    }
 }
 
 #Preview {
