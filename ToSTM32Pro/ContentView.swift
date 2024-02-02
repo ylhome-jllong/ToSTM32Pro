@@ -87,7 +87,6 @@ struct MCUControl:View {
         VStack(alignment: .leading){
             SteeringControl(coreControl: coreControl)
             MagneticSensorControl(coreControl: coreControl)
-            CompassControl(coreControl: coreControl)
         }.disabled(!coreControl.isOpenDev)
     }
 }
@@ -139,9 +138,7 @@ struct SteeringControl:View {
 struct MagneticSensorControl:View {
     @ObservedObject var coreControl:CoreControl
     var body: some View {
-        HStack(){
-            Text("磁传感器:")
-            Text(coreControl.magneticSensorInformation).frame(width: 250, alignment: .center)
+        HStack{
             Toggle(isOn: Binding(get: {
                 coreControl.magneticSensorParameter.isEnable
             }, set: { _ in
@@ -149,23 +146,24 @@ struct MagneticSensorControl:View {
             })) {
                 Text("开启")
             }
+            VStack(alignment: .leading){
+                HStack(){
+                    Text("磁传感器:")
+                    Text(coreControl.magneticSensorInformation).frame(width: 250, alignment: .center)
+                    
+                }
+                HStack(){
+                    Text("罗盘:")
+                    Text(coreControl.compassInformation).frame(width: 250, alignment: .center)
+                    Button("校准") {
+                        coreControl.magneticCalibration()
+                    }.disabled(coreControl.magneticSensorParameter.isInCalibration)
+                }.disabled(!coreControl.magneticSensorParameter.isEnable)
+            }
         }
     }
 }
 
-// 罗盘控制
-struct CompassControl:View {
-    @ObservedObject var coreControl:CoreControl
-    var body: some View {
-        HStack(){
-            Text("罗盘:")
-            Text(coreControl.compassInformation).frame(width: 250, alignment: .center)
-            Button("校准") {
-                coreControl.magneticCalibration()
-            }.disabled(coreControl.magneticSensorParameter.isInCalibration)
-        }.disabled(!coreControl.magneticSensorParameter.isEnable)
-    }
-}
 
 #Preview {
     ContentView()

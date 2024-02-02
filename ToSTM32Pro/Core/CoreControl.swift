@@ -17,8 +17,6 @@ class CoreControl: Core,ObservableObject {
     var magneticSensorInformation = "磁传感器信息"
     // 罗盘信息
     var compassInformation = "罗盘信息"
-    // 磁传感器是否启用
-    var isMagneticSensorEnable = false
     
     init(){
         super.init(isUI: true)
@@ -47,17 +45,23 @@ class CoreControl: Core,ObservableObject {
         }
         // 罗盘数据更新回调
         onMagneticSensorUpdate {
-            self.magneticSensorInformation = String(format: "x:%0.2f y:%0.2f z:%0.2f",self.magneticSensorParameter.rawX,self.magneticSensorParameter.rawY,self.magneticSensorParameter.rawZ)
-            if(self.magneticSensorParameter.isInCalibration == false){
-                if(self.magneticSensorParameter.isPrecise){
-                    self.compassInformation = String(format: "罗盘角: %0.0f",self.magneticSensorParameter.compassAngle)
+            if(self.magneticSensorParameter.isEnable){
+                self.magneticSensorInformation = String(format: "x:%0.2f y:%0.2f z:%0.2f",self.magneticSensorParameter.rawX,self.magneticSensorParameter.rawY,self.magneticSensorParameter.rawZ)
+                if(self.magneticSensorParameter.isInCalibration == false){
+                    if(self.magneticSensorParameter.isPrecise){
+                        self.compassInformation = String(format: "罗盘角: %0.0f",self.magneticSensorParameter.compassAngle)
+                    }
+                    else{
+                        self.compassInformation = "请校准传感器"
+                    }
                 }
                 else{
-                    self.compassInformation = "请校准传感器"
+                    self.compassInformation = "传感器校准中……"
                 }
             }
             else{
-                self.compassInformation = "传感器校准中……"
+                self.magneticSensorInformation = "磁传感器信息"
+                self.compassInformation = "请校准传感器"
             }
             self.updateUI()
         }

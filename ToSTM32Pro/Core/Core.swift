@@ -15,7 +15,7 @@ class Core{
     private var steeringAngleCallback:(()->())?
     private var magneticSensorUpdate:(()->())?
     
-    private var timer = Timer()
+    private var timer:Timer!
     // 串口类
     private var uart = Uart()
     // 返回的字符串
@@ -353,6 +353,15 @@ class Core{
     // 磁传感器开关
     func magneticSensorOnOff(isEnable:Bool){
         magneticSensorParameter.isEnable = isEnable
+        var outData = [UInt8]()
+        if(isEnable){ // 开机
+            outData.append(UInt8(M_REMOTE_COM_SENSOT_MAGNETIC_ON))
+        }
+        else{// 关机
+            outData.append(UInt8(M_REMOTE_COM_SENSOT_MAGNETIC_OFF))
+        }
+        send(com:UInt8(M_REMOTE_COM_SENSOR), data:outData)
+        
     }
         
     
