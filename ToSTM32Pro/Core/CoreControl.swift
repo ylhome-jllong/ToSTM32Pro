@@ -14,7 +14,11 @@ class CoreControl: Core,ObservableObject {
     // mcu时钟时间
     var mcuClockTimeString = "--:--:--"
     // 磁传感器信息
-    var MagneticSensorInformation = "磁传感器信息"
+    var magneticSensorInformation = "磁传感器信息"
+    // 罗盘信息
+    var compassInformation = "罗盘信息"
+    // 磁传感器是否启用
+    var isMagneticSensorEnable = false
     
     init(){
         super.init(isUI: true)
@@ -33,6 +37,7 @@ class CoreControl: Core,ObservableObject {
             let m = (self.mcuClockTime / 60) % 60
             let h = (self.mcuClockTime / 3600) % 24
             self.mcuClockTimeString = "\(String(format: "%02d", h)):\(String(format: "%02d", m)):\(String(format: "%02d", s))"
+
             self.updateUI()
         }
         // 舵机角度回调
@@ -40,22 +45,24 @@ class CoreControl: Core,ObservableObject {
             self.steeringAngle = Double(self.steeringParameter.angle)
             self.updateUI()
         }
-        // 磁传感器数据更新回调
-        onMagneticSensorUpDate {
+        // 罗盘数据更新回调
+        onMagneticSensorUpdate {
+            self.magneticSensorInformation = String(format: "x:%0.2f y:%0.2f z:%0.2f",self.magneticSensorParameter.rawX,self.magneticSensorParameter.rawY,self.magneticSensorParameter.rawZ)
             if(self.magneticSensorParameter.isInCalibration == false){
                 if(self.magneticSensorParameter.isPrecise){
-                    self.MagneticSensorInformation = String(format: "x:%0.2f y:%0.2f z:%0.2f 磁偏角: %0.2f",self.magneticSensorParameter.x,self.magneticSensorParameter.y,self.magneticSensorParameter.z,self.magneticSensorParameter.angle)
+                    self.compassInformation = String(format: "罗盘角: %0.0f",self.magneticSensorParameter.compassAngle)
                 }
                 else{
-                    self.MagneticSensorInformation = "请校准传感器"
+                    self.compassInformation = "请校准传感器"
                 }
             }
             else{
-                self.MagneticSensorInformation = "传感器校准中……"
+                self.compassInformation = "传感器校准中……"
             }
             self.updateUI()
         }
         
+        // 开始监听
         runListen()
     }
     // 步机电机控制

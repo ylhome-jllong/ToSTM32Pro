@@ -87,6 +87,7 @@ struct MCUControl:View {
         VStack(alignment: .leading){
             SteeringControl(coreControl: coreControl)
             MagneticSensorControl(coreControl: coreControl)
+            CompassControl(coreControl: coreControl)
         }.disabled(!coreControl.isOpenDev)
     }
 }
@@ -134,17 +135,35 @@ struct SteeringControl:View {
     }
     
 }
-
+// 磁传感器控制
 struct MagneticSensorControl:View {
     @ObservedObject var coreControl:CoreControl
     var body: some View {
         HStack(){
             Text("磁传感器:")
-            Text(coreControl.MagneticSensorInformation).frame(width: 250, alignment: .center)
+            Text(coreControl.magneticSensorInformation).frame(width: 250, alignment: .center)
+            Toggle(isOn: Binding(get: {
+                coreControl.magneticSensorParameter.isEnable
+            }, set: { _ in
+                coreControl.magneticSensorOnOff(isEnable:!coreControl.magneticSensorParameter.isEnable)
+            })) {
+                Text("开启")
+            }
+        }
+    }
+}
+
+// 罗盘控制
+struct CompassControl:View {
+    @ObservedObject var coreControl:CoreControl
+    var body: some View {
+        HStack(){
+            Text("罗盘:")
+            Text(coreControl.compassInformation).frame(width: 250, alignment: .center)
             Button("校准") {
                 coreControl.magneticCalibration()
             }.disabled(coreControl.magneticSensorParameter.isInCalibration)
-        }
+        }.disabled(!coreControl.magneticSensorParameter.isEnable)
     }
 }
 

@@ -13,7 +13,9 @@ class Core{
     private var updateLogsCallback:(()->())?
     private var mcuPulseCallback:(()->())?
     private var steeringAngleCallback:(()->())?
-    private var magneticSensorUpDate:(()->())?
+    private var magneticSensorUpdate:(()->())?
+    
+    private var timer = Timer()
     // 串口类
     private var uart = Uart()
     // 返回的字符串
@@ -30,7 +32,7 @@ class Core{
     // 舵机数据
     private(set) var steeringParameter = SteeringParameter(angle: 0)
     // 磁场传感器数据
-    private(set) var magneticSensorParameter = MagneticSensorParameter(angle: 0, x: 0, y: 0, z: 0,isPrecise: false,isInCalibration: false)
+    private(set) var magneticSensorParameter = MagneticSensorParameter()
     
     
     // 标志在线与否
@@ -75,6 +77,7 @@ class Core{
     // 功能：断开串口
     //=================================================
     func close(){
+        timer.invalidate()
         uart.close()
         isOpenDev = false
         recordLogs("串口关闭")
@@ -137,7 +140,7 @@ class Core{
     // 远程信息处理
     private func telematics(data:[UInt8]){
         switch(Int32(data[0])){
-        case M_REMOTE_COM_PRINT:remotePrint(data: data)
+        // case M_REMOTE_COM_PRINT:remotePrint(data: data)
         case M_REMOTE_COM_INFO:remoteInfo(data: data)
         case M_REMOTE_COM_ASK_TIME:remoteAskTime(data:data)
         case M_REMOTE_COM_PULSE:remotePulse(data:data)
@@ -236,20 +239,28 @@ class Core{
         switch(data[1]){
         case UInt8(M_REMOTE_COM_SENSOR_MAGNETIC_UPDATE):
             let fx:[UInt8] = [data[2],data[3],data[4],data[5]]
-            memcpy(&magneticSensorParameter.x,fx, 4)
+            memcpy(&magneticSensorParameter.rawX,fx, 4)
             let fy:[UInt8] = [data[6],data[7],data[8],data[9]]
-            memcpy(&magneticSensorParameter.y, fy, 4)
+            memcpy(&magneticSensorParameter.rawY, fy, 4)
             let fz:[UInt8] = [data[10],data[11],data[12],data[13]]
-            memcpy(&magneticSensorParameter.z, fz, 4)
-            let fa:[UInt8] = [data[14],data[15],data[16],data[17]]
-            memcpy(&magneticSensorParameter.angle, fa, 4)
-            // 信息回调
-            if let magneticSensorUpDate = self.magneticSensorUpDate {
-                magneticSensorUpDate()
+            memcpy(&magneticSensorParameter.rawZ, fz, 4)
+            var uAHigh = data[17]
+            if((uAHigh & 0x80) != 0){
+                magneticSensorParameter.isPrecise = false
+                uAHigh &= 0x7F
             }
+            
+            let fa:[UInt8] = [data[14],data[15],data[16],uAHigh]
+            memcpy(&magneticSensorParameter.compassAngle,fa, 4)
+            
+            // 信息回调
+            if let magneticSensorUpdate = self.magneticSensorUpdate {
+                magneticSensorUpdate()
+            }
+            
         case UInt8(M_REMOTE_COM_SENSOT_MAGNETIC_CALIBRATION_COMPLETE):
             magneticSensorParameter.isPrecise = true  // 数据有效
-            magneticSensorParameter.isInCalibration = false // 校准中
+            magneticSensorParameter.isInCalibration = false // 不在校准中
         default:
             recordLogs("传感器：未知信息")
         }
@@ -298,7 +309,7 @@ class Core{
     // 单片机脉搏
     func mcuPulseControl(){
         // 脉搏测试 (逻辑还是有问题)
-        let timer = Timer.scheduledTimer(withTimeInterval: 1.0, repeats: true){timer in
+        timer = Timer.scheduledTimer(withTimeInterval: 1.0, repeats: true){timer in
             self.isOnLine -= 1;
             if(self.isOnLine < -5){
                 timer.invalidate()
@@ -339,6 +350,11 @@ class Core{
         send(com: UInt8(M_REMOTE_COM_SENSOR), data:outData)
     }
     
+    // 磁传感器开关
+    func magneticSensorOnOff(isEnable:Bool){
+        magneticSensorParameter.isEnable = isEnable
+    }
+        
     
     
     
@@ -356,8 +372,8 @@ class Core{
         self.steeringAngleCallback = block
     }
     // 磁传感器数据更新回调
-    func onMagneticSensorUpDate(block:@escaping()->()){
-        self.magneticSensorUpDate = block
+    func onMagneticSensorUpdate(block:@escaping()->()){
+        self.magneticSensorUpdate = block
     }
     
 }
@@ -370,10 +386,11 @@ struct SteeringParameter{
 }
 // 磁传感器相关参数
 struct MagneticSensorParameter{
-    var angle:Float32;
-    var x:Float32;
-    var y:Float32;
-    var z:Float32;
-    var isPrecise:Bool; // 数据是否有效
-    var isInCalibration:Bool; // 精准中
+    var compassAngle:Float32 = 0
+    var rawX:Float32 = 0
+    var rawY:Float32 = 0
+    var rawZ:Float32 = 0
+    var isPrecise:Bool = false // 数据是否有效
+    var isInCalibration:Bool = false // 校准中
+    var isEnable = false // 是否开启
 }
