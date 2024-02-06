@@ -14,6 +14,8 @@ class Core{
     private var mcuPulseCallback:(()->())?
     private var steeringAngleCallback:(()->())?
     private var magneticSensorUpdate:(()->())?
+    private var magneticSensorOn:(()->())?
+    private var magneticSensorOff:(()->())?
     
     private var timer:Timer!
     // 串口类
@@ -237,7 +239,7 @@ class Core{
     // 远程传感器
     private func remoteSensor(data:[UInt8]){
         switch(data[1]){
-        case UInt8(M_REMOTE_COM_SENSOR_MAGNETIC_UPDATE):
+        case UInt8(M_REMOTE_COM_SENSOR_MAGNETIC_UPDATE):        // 磁传感器数据更新
             let fx:[UInt8] = [data[2],data[3],data[4],data[5]]
             memcpy(&magneticSensorParameter.rawX,fx, 4)
             let fy:[UInt8] = [data[6],data[7],data[8],data[9]]
@@ -258,9 +260,23 @@ class Core{
                 magneticSensorUpdate()
             }
             
-        case UInt8(M_REMOTE_COM_SENSOT_MAGNETIC_CALIBRATION_COMPLETE):
+        case UInt8(M_REMOTE_COM_SENSOT_MAGNETIC_CALIBRATION_COMPLETE):// 磁传感器校准完成
             magneticSensorParameter.isPrecise = true  // 数据有效
             magneticSensorParameter.isInCalibration = false // 不在校准中
+            
+        case UInt8(M_REMOTE_COM_SENSOT_MAGNETIC_ON): // 磁传感器开机
+            magneticSensorParameter.isEnable = true
+            // 回调
+            if let magneticSensorOn = self.magneticSensorOn {
+                magneticSensorOn()
+            }
+        case UInt8(M_REMOTE_COM_SENSOT_MAGNETIC_OFF):// 磁传感器关机
+            magneticSensorParameter.isEnable = false
+            // 回调
+            if let magneticSensorOff = self.magneticSensorOff {
+                magneticSensorOff()
+            }
+            
         default:
             recordLogs("传感器：未知信息")
         }
@@ -351,10 +367,9 @@ class Core{
     }
     
     // 磁传感器开关
-    func magneticSensorOnOff(isEnable:Bool){
-        magneticSensorParameter.isEnable = isEnable
+    func magneticSensorOnOff(isOn:Bool){
         var outData = [UInt8]()
-        if(isEnable){ // 开机
+        if(isOn){ // 开机
             outData.append(UInt8(M_REMOTE_COM_SENSOT_MAGNETIC_ON))
         }
         else{// 关机
@@ -383,6 +398,14 @@ class Core{
     // 磁传感器数据更新回调
     func onMagneticSensorUpdate(block:@escaping()->()){
         self.magneticSensorUpdate = block
+    }
+    // 磁传感器开机
+    func onMageneticSensorOn(block:@escaping()->()){
+        self.magneticSensorOn = block
+    }
+    // 磁传感器关机
+    func onMageneticSensorOff(block:@escaping()->()){
+        self.magneticSensorOff = block
     }
     
 }

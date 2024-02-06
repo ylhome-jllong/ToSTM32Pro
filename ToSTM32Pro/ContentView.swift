@@ -142,7 +142,7 @@ struct MagneticSensorControl:View {
             Toggle(isOn: Binding(get: {
                 coreControl.magneticSensorParameter.isEnable
             }, set: { _ in
-                coreControl.magneticSensorOnOff(isEnable:!coreControl.magneticSensorParameter.isEnable)
+                coreControl.magneticSensorOnOff(isOn:!coreControl.magneticSensorParameter.isEnable)
             })) {
                 Text("开启")
             }

@@ -65,6 +65,14 @@ class CoreControl: Core,ObservableObject {
             }
             self.updateUI()
         }
+        // 磁感器开机回调
+        onMageneticSensorOn {
+            self.updateUI()
+        }
+        // 磁传感器关键回调
+        onMageneticSensorOff {
+            self.updateUI()
+        }
         
         // 开始监听
         runListen()
