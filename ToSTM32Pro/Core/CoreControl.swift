@@ -59,10 +59,6 @@ class CoreControl: Core,ObservableObject {
                     self.compassInformation = "传感器校准中……"
                 }
             }
-            else{
-                self.magneticSensorInformation = "磁传感器信息"
-                self.compassInformation = "请校准传感器"
-            }
             self.updateUI()
         }
         // 磁感器开机回调
@@ -71,6 +67,8 @@ class CoreControl: Core,ObservableObject {
         }
         // 磁传感器关键回调
         onMageneticSensorOff {
+            self.magneticSensorInformation = "磁传感器信息"
+            self.compassInformation = "罗盘信息"
             self.updateUI()
         }
         
